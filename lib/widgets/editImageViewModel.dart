@@ -1,31 +1,75 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:image_editor/screens/editImageScreen.dart';
+import 'package:image_editor/utils/utils.dart';
 import 'package:image_editor/widgets/defaultButton.dart';
 import 'package:get/get.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:screenshot/screenshot.dart';
 
 import '../models/textInfo.dart';
 
 abstract class EditImageViewModel extends State<EditImageScreen> {
   TextEditingController textEditingController = TextEditingController();
   TextEditingController creatorText = TextEditingController();
+  ScreenshotController screenshotController = ScreenshotController();
   List<TextInfo> textx = [];
   int currentIndex = 0;
+
+  saveToGallery(BuildContext context) {
+    if (textx.isNotEmpty) {
+      screenshotController
+          .capture()
+          .then((Uint8List? image) {})
+          .catchError((err) => print(err));
+    }
+  }
+
+  saveImage(Uint8List bytes) async {
+    final time = DateTime.now()
+        .toIso8601String()
+        .replaceAll('.', '-')
+        .replaceAll(':', '-');
+    final name = "screenshot_$time";
+    await requestPermission(Permission.storage);
+    await ImageGallerySaver.saveImage(bytes, name: name);
+  }
+
+  removeText() {
+    setState(() {
+      textx.removeAt(currentIndex);
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          "Deleted",
+          style: TextStyle(fontSize: 16),
+        ),
+      ),
+    );
+  }
 
   setCurrentIndex(BuildContext context, index) {
     setState(() {
       currentIndex = index;
     });
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
         content: Text(
-      "Selected for Styling",
-      style: TextStyle(fontSize: 16),
-    )));
+          "Selected for Styling",
+          style: TextStyle(fontSize: 16),
+        ),
+      ),
+    );
   }
 
-  changeTextColor(Color color) {
+  changeTextColor(Color anan) {
     setState(() {
-      print("bastı");
-      textx[currentIndex].color = color;
+      print("bastı : $anan");
+      anan = textx[currentIndex].color;
+      print(textx[currentIndex].color);
     });
   }
 
@@ -75,6 +119,18 @@ abstract class EditImageViewModel extends State<EditImageScreen> {
         textx[currentIndex].fontStyle = FontStyle.normal;
       } else {
         textx[currentIndex].fontStyle = FontStyle.italic;
+      }
+    });
+  }
+
+  addLinesToText() {
+    setState(() {
+      if (textx[currentIndex].text.contains('\n')) {
+        textx[currentIndex].text =
+            textx[currentIndex].text.replaceAll('\n', ' ');
+      } else {
+        textx[currentIndex].text =
+            textx[currentIndex].text.replaceAll(' ', '\n');
       }
     });
   }

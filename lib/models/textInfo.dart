@@ -10,13 +10,14 @@ class TextInfo {
   double fontsize;
   TextAlign textAlign;
 
-  TextInfo(
-      {required this.text,
-      required this.left,
-      required this.top,
-      required this.color,
-      required this.fontWeight,
-      required this.fontStyle,
-      required this.fontsize,
-      required this.textAlign});
+  TextInfo({
+    required this.text,
+    required this.left,
+    required this.top,
+    required this.color,
+    required this.fontWeight,
+    required this.fontStyle,
+    required this.fontsize,
+    required this.textAlign,
+  });
 }
